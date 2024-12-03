@@ -1,3 +1,4 @@
+
 /*
 	Eventually by HTML5 UP
 	html5up.net | @ajlkn
@@ -38,7 +39,9 @@
 						images: {
 							'images/bg01.jpg': 'center',
 							'images/bg02.jpg': 'center',
-							'images/bg03.jpg': 'center'
+							'images/bg05.jpg': 'center',
+							'images/bg03.jpg': 'center',
+							'images/bg04.jpg': 'center'
 						},
 
 					// Delay.
@@ -98,74 +101,74 @@
 						}, settings.delay / 2);
 
 				}, settings.delay);
-
+		
 		})();
 
-	// Signup Form.
-		(function() {
+	// Signup Form
+	(function () {
+		// Vars
+		var $form = document.querySelector('#signup-form'),
+			$submit = document.querySelector('#signup-form input[type="submit"]'),
+			$message = document.createElement('span');
 
-			// Vars.
-				var $form = document.querySelectorAll('#signup-form')[0],
-					$submit = document.querySelectorAll('#signup-form input[type="submit"]')[0],
-					$message;
+		// Bail if addEventListener isn't supported
+		if (!('addEventListener' in $form)) return;
 
-			// Bail if addEventListener isn't supported.
-				if (!('addEventListener' in $form))
-					return;
+		// Message
+		$message.classList.add('message');
+		$form.appendChild($message);
 
-			// Message.
-				$message = document.createElement('span');
-					$message.classList.add('message');
-					$form.appendChild($message);
+		$message._show = function (type, text) {
+			$message.innerHTML = text;
+			$message.classList.add(type);
+			$message.classList.add('visible');
 
-				$message._show = function(type, text) {
+			window.setTimeout(function () {
+				$message._hide();
+			}, 3000);
+		};
 
-					$message.innerHTML = text;
-					$message.classList.add(type);
-					$message.classList.add('visible');
+		$message._hide = function () {
+			$message.classList.remove('visible');
+		};
 
-					window.setTimeout(function() {
-						$message._hide();
-					}, 3000);
+		// Events
+		$form.addEventListener('submit', function (event) {
+			event.preventDefault(); // Prevent default form submission
 
-				};
+			// Hide message
+			$message._hide();
 
-				$message._hide = function() {
-					$message.classList.remove('visible');
-				};
+			// Disable submit button
+			$submit.disabled = true;
 
-			// Events.
-			// Note: If you're *not* using AJAX, get rid of this event listener.
-				$form.addEventListener('submit', function(event) {
+			// Process form submission using fetch
+			fetch($form.action, {
+				method: $form.method,
+				body: new FormData($form),
+				headers: { Accept: 'application/json' },
+			})
+				.then(function (response) {
+					if (response.ok) {
+						// Hide the form
+						$form.style.display = 'none';
 
-					event.stopPropagation();
-					event.preventDefault();
-
-					// Hide message.
-						$message._hide();
-
-					// Disable submit.
-						$submit.disabled = true;
-
-					// Process form.
-					// Note: Doesn't actually do anything yet (other than report back with a "thank you"),
-					// but there's enough here to piece together a working AJAX submission call that does.
-						window.setTimeout(function() {
-
-							// Reset form.
-								$form.reset();
-
-							// Enable submit.
-								$submit.disabled = false;
-
-							// Show message.
-								$message._show('success', 'Thank you!');
-								//$message._show('failure', 'Something went wrong. Please try again.');
-
-						}, 750);
-
+						// Show the thank-you message
+						document.getElementById('thank-you-message').style.display = 'block';
+					} else {
+						// Show failure message
+						$message._show('failure', 'Something went wrong. Please try again.');
+					}
+				})
+				.catch(function () {
+					// Show failure message
+					$message._show('failure', 'Something went wrong. Please check your connection and try again.');
+				})
+				.finally(function () {
+					// Re-enable submit button
+					$submit.disabled = false;
 				});
-
-		})();
+		});
+	})();
 
 })();
